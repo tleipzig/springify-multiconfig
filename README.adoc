@@ -1,0 +1,66 @@
+# Springify Multiconfig image:https://travis-ci.org/tleipzig/springify-multiconfig.svg?branch=master["Build Status",link="https://travis-ci.org/tleipzig/springify-multiconfig"] image:https://img.shields.io/badge/License-Apache%202.0-blue.svg["Licence",link="https://raw.githubusercontent.com/tleipzig/springify-multiconfig/master/LICENSE"]
+
+**Springify Multiconfig** loads application YAML files from all jars in the classpath into the application
+context of a Spring Boot application, helping to split the configuration of multi module projects.
+
+It's part of http://www.it-surmann.com/springify[**Springify**], a set of open source libraries supporting
+the development of multi module projects with Spring Boot.
+
+## Usage
+
+Just add the dependency from the central Maven repository:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.it-surmann</groupId>
+  <artifactId>springify-multiconfig</artifactId>
+  <version>1.0</version>
+</dependency>
+----
+
+**Springify Multiconfig** is now scanning for files with the name `application-mc-*.yml`, which are
+then loaded into the application context.
+
+## Example
+
+A typical multi module project may look like this.
+
+[source]
+----
+ +-------------------+
+ |    module-web     | containing application.yml, application-prod.yml
+ +-------------------+
+          |
+          V
+ +-------------------+
+ |    module-blog    | containing application-mc-blog.yml
+ +-------------------+
+          |
+          V
+ +-------------------+
+ | module-newsletter |  containing application-mc-newsletter.yml
+ +-------------------+
+          |
+          V
+ +-------------------+
+ |   module-basics   | containing application-mc-basics.yml
+ +-------------------+
+----
+
+The separation helps to keep code and configuration together, so each module can provide its own
+configuration if needed. The default behaviour for initializing the application context remains
+untouched, so in the example the application YAML files of module-web are loaded by Spring Boot itself
+(depending on the active profile).
+
+TIP: Specify the dependency to `springify-multiconfig` on the lowest module (module-basics).
+
+When the application is started, all modules are part of it and all application YAML files are loaded.
+They are ordered corresponding to their dependency graph, so in the example the
+_application-mc-blog.yml_ would override properties of _application-mc-newsletter.yml_ and
+_application-mc-basics.yml_ with the same name (if present).
+
+If a module contains a test class initializing the context, only the application YAML files of the
+current module plus dependencies are loaded. For example a class `NewsletterServiceIT` in module-newsletter
+annotated with `@SpringBootTest` would load _application-mc-basics.yml_ as well as
+_application-mc-newsletter.yml_, but nothing else.

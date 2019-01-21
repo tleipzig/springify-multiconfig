@@ -1,0 +1,54 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java-library'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'maven-publish'
+
+group = 'com.it-surmann'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly('org.projectlombok:lombok')
+    testCompileOnly('org.projectlombok:lombok')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    manifest {
+        attributes 'Implementation-Title': 'Springify Multiconfig',
+                'Implementation-Version': version
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

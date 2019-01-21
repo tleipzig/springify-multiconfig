@@ -1,0 +1,2 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.it_surmann.springify.multiconfig.MultiConfigContextInitializer
