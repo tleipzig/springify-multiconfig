@@ -4,9 +4,13 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath 'net.researchgate:gradle-release:2.6.0'
     }
 }
 
@@ -16,9 +20,10 @@ apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 apply plugin: 'maven-publish'
+apply plugin: 'net.researchgate.release'
+apply plugin: 'signing'
+apply plugin: 'maven'
 
-group = 'com.it-surmann'
-version = '1.0-SNAPSHOT'
 sourceCompatibility = '8'
 
 repositories {
@@ -45,6 +50,7 @@ jar {
     }
 }
 
+// publish locally
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -52,3 +58,77 @@ publishing {
         }
     }
 }
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+def v_ossrhUsername = "FOO"
+def v_ossrhPassword = "BAR"
+
+if (project.hasProperty("ossrhUsername")) {
+    v_ossrhUsername = ossrhUsername
+}
+if (project.hasProperty("ossrhPassword")) {
+    v_ossrhPassword = ossrhPassword
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment {
+                MavenDeployment deployment -> signing.signPom(deployment)
+            }
+            repository(url: maven2_url) {
+                authentication(userName: v_ossrhUsername, password: v_ossrhPassword)
+            }
+            snapshotRepository(url: snapshot_url) {
+                authentication(userName: v_ossrhUsername, password: v_ossrhPassword)
+            }
+            pom.project {
+                name project_name
+                artifactId archivesBaseName
+                packaging 'jar'
+                version version
+                description project_description
+                url project_url
+                scm {
+                    connection project_scm
+                    developerConnection project_scm
+                    url project_url
+                }
+                licenses {
+                    license {
+                        name project_license_slug
+                        url project_license_url
+                    }
+                }
+                developers {
+                    developer {
+                        id project_developer
+                        name project_developer
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+ * For each release, push the released artifacts to OSS sonatype
+ */
+afterReleaseBuild.dependsOn uploadArchives

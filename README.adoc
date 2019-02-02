@@ -15,7 +15,7 @@ Just add the dependency from the central Maven repository:
 <dependency>
   <groupId>com.it-surmann</groupId>
   <artifactId>springify-multiconfig</artifactId>
-  <version>1.0</version>
+  <version>1.0.0</version>
 </dependency>
 ----
 
@@ -56,7 +56,7 @@ untouched, so in the example the application YAML files of module-web are loaded
 TIP: Specify the dependency to `springify-multiconfig` on the lowest module (module-basics).
 
 When the application is started, all modules are part of it and all application YAML files are loaded.
-They are ordered corresponding to their dependency graph, so in the example the
+They are ordered corresponding to the dependency graph, so in the example the
 _application-mc-blog.yml_ would override properties of _application-mc-newsletter.yml_ and
 _application-mc-basics.yml_ with the same name (if present).
 
