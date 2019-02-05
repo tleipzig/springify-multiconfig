@@ -1,14 +1,14 @@
-# Springify Multiconfig image:https://travis-ci.org/tleipzig/springify-multiconfig.svg?branch=master["Build Status",link="https://travis-ci.org/tleipzig/springify-multiconfig"] image:https://img.shields.io/badge/License-Apache%202.0-blue.svg["Licence",link="https://raw.githubusercontent.com/tleipzig/springify-multiconfig/master/LICENSE"]
+# Springify Multiconfig image:https://travis-ci.org/tleipzig/springify-multiconfig.svg?branch=master["Build Status",link="https://travis-ci.org/tleipzig/springify-multiconfig"] image:https://maven-badges.herokuapp.com/maven-central/com.it-surmann/springify-multiconfig/badge.svg["Maven Central",link="https://maven-badges.herokuapp.com/maven-central/com.it-surmann/springify-multiconfig"] image:https://img.shields.io/badge/License-Apache%202.0-blue.svg["Licence",link="https://raw.githubusercontent.com/tleipzig/springify-multiconfig/master/LICENSE"]
 
 **Springify Multiconfig** loads application YAML files from all jars in the classpath into the application
-context of a Spring Boot application, helping to split the configuration of multi module projects.
+context of a Spring Boot application, helping to split the configuration of multi-module projects.
 
-It's part of http://www.it-surmann.com/springify[**Springify**], a set of open source libraries supporting
-the development of multi module projects with Spring Boot.
+It's part of http://www.it-surmann.com/springify/[**Springify**], a set of open source libraries supporting
+the development of Spring Boot projects.
 
 ## Usage
 
-Just add the dependency from the central Maven repository:
+Just add the dependency from the Maven Central Repository:
 
 [source,xml]
 ----
@@ -24,7 +24,7 @@ then loaded into the application context.
 
 ## Example
 
-A typical multi module project may look like this.
+A typical multi-module project may look like this.
 
 [source]
 ----

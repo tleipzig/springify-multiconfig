@@ -27,18 +27,18 @@ public class MultiConfigContextInitializer implements ApplicationContextInitiali
         final Resource[] resources = context.getResources("classpath*:/application-mc-*.yml");
 
         for (final Resource resource : resources) {
-            log.debug("Found file: " + resource.getFilename());
+            log.debug("Found file: {}", resource.getFilename());
 
             final YamlPropertySourceLoader yamlSourceLoader = new YamlPropertySourceLoader();
             final List<PropertySource<?>> yamlSources = yamlSourceLoader.load(resource.getFilename(), resource);
 
             if (yamlSources == null || yamlSources.isEmpty()) {
-                log.warn("No source found for file: " + resource.getFilename());
+                log.warn("No source found for file: {}", resource.getFilename());
                 continue;
             }
 
             for (final PropertySource<?> yamlSource : yamlSources) {
-                log.info("Adding file with lowest precedence: " + resource.getFilename());
+                log.info("Adding file with lowest precedence: {}", resource.getFilename());
                 context.getEnvironment().getPropertySources().addLast(yamlSource);
             }
         }

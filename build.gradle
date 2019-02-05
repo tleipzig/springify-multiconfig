@@ -128,7 +128,4 @@ uploadArchives {
     }
 }
 
-/*
- * For each release, push the released artifacts to OSS sonatype
- */
 afterReleaseBuild.dependsOn uploadArchives
