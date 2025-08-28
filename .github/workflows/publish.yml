@@ -24,7 +24,7 @@ jobs:
             echo "signingInMemoryKeyPassword=${{ secrets.SIGNING_PASSWORD }}"
           } >> ~/.gradle/gradle.properties
           cat >> ~/.gradle/gradle.properties <<'EOF'
-  signingInMemoryKey=${{ secrets.SIGNING_KEY }}
-  EOF
-- name: Publish to Maven Central (Central Portal)
-  run: ./gradlew --no-daemon publishToMavenCentral
+          signingInMemoryKey=${{ secrets.SIGNING_KEY }}
+          EOF
+      - name: Publish to Maven Central (Central Portal)
+        run: ./gradlew --no-daemon publishToMavenCentral
