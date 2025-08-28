@@ -2,7 +2,7 @@ name: Publish to Maven Central
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+      - '*'
   workflow_dispatch:
 jobs:
   publish:
@@ -24,8 +24,7 @@ jobs:
             echo "mavenCentralPassword=${{ secrets.CENTRAL_PASSWORD }}"
             echo "signingInMemoryKeyPassword=${{ secrets.SIGNING_PASSWORD }}"
           } >> ~/.gradle/gradle.properties
-          cat >> ~/.gradle/gradle.properties <<'EOF'
-          signingInMemoryKey=${{ secrets.SIGNING_KEY }}
-          EOF
+          printf "signingInMemoryKey=%s\n" "${{ secrets.SIGNING_KEY }}" \
+            | sed ':a;N;$!ba;s/\n/\\n/g' >> ~/.gradle/gradle.properties
       - name: Publish to Maven Central (Central Portal)
         run: ./gradlew --no-daemon publishToMavenCentral

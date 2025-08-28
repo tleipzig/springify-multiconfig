@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Implementation of ApplicationContextInitializer for loading YAML files with the name
  * application-mc-*.yml into the application context. Files are loaded from all jars in the
- * classpath corresponding with their order in the depdency graph.
+ * classpath corresponding with their order in the dependency graph.
  */
 @Slf4j
 public class MultiConfigContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
@@ -22,9 +22,9 @@ public class MultiConfigContextInitializer implements ApplicationContextInitiali
     @Override
     @SneakyThrows
     public void initialize(final ConfigurableApplicationContext context) {
-        log.info("Searching for application-mc-*.yml");
+        log.info("Searching for application-mc-*.yml/yaml");
 
-        final Resource[] resources = context.getResources("classpath*:/application-mc-*.yml");
+        final Resource[] resources = context.getResources("classpath*:/application-mc-*.{yml,yaml}");
 
         for (final Resource resource : resources) {
             log.debug("Found file: {}", resource.getFilename());

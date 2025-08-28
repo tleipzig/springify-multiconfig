@@ -54,6 +54,38 @@ jar {
     }
 }
 
+publishing {
+    publications {
+        withType(MavenPublication).configureEach {
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+}
+
+tasks.matching {
+    it.name in ['plainJavadocJar', 'plainSourcesJar']
+}.configureEach {
+    enabled = false
+}
+
+def docAndSourceTasks = tasks.matching {
+    it.name in ['javadocJar', 'sourcesJar',
+            'plainJavadocJar', 'plainSourcesJar']
+}
+tasks.matching {
+    it.name.startsWith('generateMetadataFileFor') &&
+            it.name.endsWith('Publication')
+}.configureEach {
+    dependsOn(docAndSourceTasks)
+}
+
 mavenPublishing {
     publishToMavenCentral(true)
     signAllPublications()
@@ -82,13 +114,9 @@ mavenPublishing {
 }
 
 signing {
-    def key = findProperty('signingInMemoryKey')
-    def keyId = findProperty('signingInMemoryKeyId')
+    def key = findProperty('signingInMemoryKey')?.replace('\\n', '\n')
     def keyPass = findProperty('signingInMemoryKeyPassword')
-    if (key) {
-        useInMemoryPgpKeys(keyId as String, key as String, keyPass as String)
-    }
-    sign publishing.publications
+    useInMemoryPgpKeys(key as String, keyPass as String)
 }
 
 afterReleaseBuild.dependsOn 'publishToMavenCentral'
