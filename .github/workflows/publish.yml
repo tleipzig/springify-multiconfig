@@ -1,0 +1,30 @@
+name: Publish to Maven Central
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Configure Gradle credentials & signing
+        run: |
+          mkdir -p ~/.gradle
+          {
+            echo "mavenCentralUsername=${{ secrets.CENTRAL_USERNAME }}"
+            echo "mavenCentralPassword=${{ secrets.CENTRAL_PASSWORD }}"
+            echo "signingInMemoryKeyPassword=${{ secrets.SIGNING_PASSWORD }}"
+          } >> ~/.gradle/gradle.properties
+          cat >> ~/.gradle/gradle.properties <<'EOF'
+  signingInMemoryKey=${{ secrets.SIGNING_KEY }}
+  EOF
+- name: Publish to Maven Central (Central Portal)
+  run: ./gradlew --no-daemon publishToMavenCentral

@@ -1,131 +1,94 @@
-buildscript {
-    ext {
-        springBootVersion = '2.1.2.RELEASE'
-    }
-    repositories {
-        mavenCentral()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath 'net.researchgate:gradle-release:2.6.0'
-    }
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'signing'
+    id 'net.researchgate.release' version '3.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.vanniktech.maven.publish' version '0.34.0'
+    // id 'org.springframework.boot' version '3.5.5' apply false
 }
 
-apply plugin: 'java-library'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'maven-publish'
-apply plugin: 'net.researchgate.release'
-apply plugin: 'signing'
-apply plugin: 'maven'
+group = project.findProperty("GROUP") ?: group
+version = project.findProperty("VERSION_NAME") ?: version
 
-sourceCompatibility = '8'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
 
 repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:3.5.5'
+    }
+}
+
 dependencies {
-    compileOnly('org.projectlombok:lombok')
-    testCompileOnly('org.projectlombok:lombok')
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-bootJar {
+tasks.matching {
+    it.name == "bootJar"
+}.configureEach {
     enabled = false
 }
 
 jar {
-    enabled = true
     manifest {
-        attributes 'Implementation-Title': 'Springify Multiconfig',
+        attributes(
+                'Implementation-Title': 'Springify Multiconfig',
                 'Implementation-Version': version
+        )
     }
 }
 
-// publish locally
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
+mavenPublishing {
+    publishToMavenCentral(true)
+    signAllPublications()
+    pom {
+        name = project_name
+        description = project_description
+        url = project_url
+        licenses {
+            license {
+                name = project_license_slug
+                url = project_license_url
+            }
+        }
+        developers {
+            developer {
+                id = project_developer
+                name = project_developer
+            }
+        }
+        scm {
+            connection = project_scm
+            developerConnection = project_scm
+            url = project_url
         }
     }
-}
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
 }
 
 signing {
-    sign configurations.archives
-}
-
-def v_ossrhUsername = "FOO"
-def v_ossrhPassword = "BAR"
-
-if (project.hasProperty("ossrhUsername")) {
-    v_ossrhUsername = ossrhUsername
-}
-if (project.hasProperty("ossrhPassword")) {
-    v_ossrhPassword = ossrhPassword
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment {
-                MavenDeployment deployment -> signing.signPom(deployment)
-            }
-            repository(url: maven2_url) {
-                authentication(userName: v_ossrhUsername, password: v_ossrhPassword)
-            }
-            snapshotRepository(url: snapshot_url) {
-                authentication(userName: v_ossrhUsername, password: v_ossrhPassword)
-            }
-            pom.project {
-                name project_name
-                artifactId archivesBaseName
-                packaging 'jar'
-                version version
-                description project_description
-                url project_url
-                scm {
-                    connection project_scm
-                    developerConnection project_scm
-                    url project_url
-                }
-                licenses {
-                    license {
-                        name project_license_slug
-                        url project_license_url
-                    }
-                }
-                developers {
-                    developer {
-                        id project_developer
-                        name project_developer
-                    }
-                }
-            }
-        }
+    def key = findProperty('signingInMemoryKey')
+    def keyId = findProperty('signingInMemoryKeyId')
+    def keyPass = findProperty('signingInMemoryKeyPassword')
+    if (key) {
+        useInMemoryPgpKeys(keyId as String, key as String, keyPass as String)
     }
+    sign publishing.publications
 }
 
-afterReleaseBuild.dependsOn uploadArchives
+afterReleaseBuild.dependsOn 'publishToMavenCentral'
