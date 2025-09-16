@@ -19,7 +19,7 @@ Just add the dependency from the Maven Central Repository:
 </dependency>
 ----
 
-**Springify Multiconfig** is now scanning for files with the name `application-mc-*.yml`, which are
+**Springify Multiconfig** is now scanning for files with the name `application-mc-*.yml` (or `.yaml` or `.properties`), which are
 then loaded into the application context.
 
 == Example
